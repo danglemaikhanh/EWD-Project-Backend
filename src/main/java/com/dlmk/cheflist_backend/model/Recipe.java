@@ -9,7 +9,7 @@ public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String recipeName;
+    private String name;
     private String imageUrl;
     private String category;
     private String area;
@@ -22,9 +22,9 @@ public class Recipe {
     public Recipe() {
     }
 
-    public Recipe(Long id, String recipeName, String imageUrl, String category, String area, boolean favorite) {
+    public Recipe(Long id, String name, String imageUrl, String category, String area, boolean favorite) {
         this.id = id;
-        this.recipeName = recipeName;
+        this.name = name;
         this.imageUrl = imageUrl;
         this.category = category;
         this.area = area;
@@ -39,12 +39,12 @@ public class Recipe {
         this.id = id;
     }
 
-    public String getRecipeName() {
-        return recipeName;
+    public String getName() {
+        return name;
     }
 
-    public void setRecipeName(String recipeName) {
-        this.recipeName = recipeName;
+    public void setName(String recipeName) {
+        this.name = recipeName;
     }
 
     public String getImageUrl() {
@@ -85,7 +85,7 @@ public class Recipe {
         Recipe recipe = (Recipe) o;
         return favorite == recipe.favorite &&
                 Objects.equals(id, recipe.id) &&
-                Objects.equals(recipeName, recipe.recipeName) &&
+                Objects.equals(name, recipe.name) &&
                 Objects.equals(imageUrl, recipe.imageUrl) &&
                 Objects.equals(category, recipe.category) &&
                 Objects.equals(area, recipe.area);
@@ -93,6 +93,6 @@ public class Recipe {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, recipeName, imageUrl, category, area, favorite);
+        return Objects.hash(id, name, imageUrl, category, area, favorite);
     }
 }
