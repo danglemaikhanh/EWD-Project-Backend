@@ -15,7 +15,6 @@ public class CheflistBackendApplication {
 
     @GetMapping("/")
     public String hello() {
-        return "Hello World";
+        return "Hello";
     }
-
 }
