@@ -1,52 +1,37 @@
 package com.dlmk.cheflist_backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.*;
 
 @Entity
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class TodoShoppingList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private List<String> items = new ArrayList<>();
 
-    public TodoShoppingList() {
-    }
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @JoinColumn(name = "ingredient_id")
+    private Ingredient ingredient;
+    private double quantity;
+    private String unit;
 
-    public TodoShoppingList(Long id, List<String> items) {
-        this.id = id;
-        this.items = items;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public List<String> getItems() {
-        return items;
-    }
-
-    public void setItems(List<String> items) {
-        this.items = items;
-    }
+    private boolean checked;
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         TodoShoppingList that = (TodoShoppingList) o;
-        return Objects.equals(id, that.id) && Objects.equals(items, that.items);
+        return Double.compare(quantity, that.quantity) == 0
+                && checked == that.checked && Objects.equals(id, that.id)
+                && Objects.equals(ingredient, that.ingredient)
+                && Objects.equals(unit, that.unit);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, items);
+        return Objects.hash(id, ingredient, quantity, unit, checked);
     }
 }

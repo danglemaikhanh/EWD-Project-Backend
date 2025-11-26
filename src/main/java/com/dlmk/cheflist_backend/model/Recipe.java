@@ -1,10 +1,15 @@
 package com.dlmk.cheflist_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.*;
 
 @Entity
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,71 +18,27 @@ public class Recipe {
     private String imageUrl;
     private String category;
     private String area;
-
-    //private List<IngredientQuantity> ingredients = new ArrayList<>();
-    //private List<Step> steps = new ArrayList<>();
-
     private boolean favorite;
 
-    public Recipe() {
-    }
+    @CreationTimestamp
+    @Column(nullable = false)
+    private Date createdAt;
 
-    public Recipe(Long id, String name, String imageUrl, String category, String area, boolean favorite) {
-        this.id = id;
-        this.name = name;
-        this.imageUrl = imageUrl;
-        this.category = category;
-        this.area = area;
-        this.favorite = favorite;
-    }
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Date updatedAt;
 
-    public Long getId() {
-        return id;
-    }
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "ingredient_id", referencedColumnName = "id"))
+    @JsonIgnore
+    private List<Ingredient> ingredients;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String recipeName) {
-        this.name = recipeName;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getArea() {
-        return area;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
-
-    public boolean isFavorite() {
-        return favorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(name = "recipe_steps", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "step_id", referencedColumnName = "id"))
+    @JsonIgnore
+    private List<Step> steps;
 
     @Override
     public boolean equals(Object o) {

@@ -4,10 +4,12 @@ import com.dlmk.cheflist_backend.model.AppUser;
 import com.dlmk.cheflist_backend.model.Role;
 import com.dlmk.cheflist_backend.repository.AppUserRepository;
 import com.dlmk.cheflist_backend.repository.RoleRepository;
+import com.dlmk.cheflist_backend.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,13 +29,32 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AppUser body) {
-        Authentication auth = authenticationManager
-                .authenticate((new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword())));
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        return new ResponseEntity<>("User signed in", HttpStatus.OK);
+        if (body.getUsername().isEmpty() || body.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body("Username or password is empty");
+        }
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword())
+            );
+            var user = appUserRepository.findByUsername(body.getUsername()).orElseThrow();
+            String token = jwtService.generateToken(
+                    new org.springframework.security.core.userdetails.User(
+                            user.getUsername(),
+                            user.getPassword(),
+                            authentication.getAuthorities()
+                    )
+            );
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "token_type", "Bearer"
+            ));
+        }catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body("Invalid username or password");
+        }
     }
 
     @PostMapping("/register")
