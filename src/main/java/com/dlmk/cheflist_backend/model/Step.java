@@ -12,6 +12,8 @@ public class Step {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int stepNumber;
+
+    @Column(columnDefinition="TEXT")
     private String description;
 
     @Override

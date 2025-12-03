@@ -12,8 +12,7 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private double quantity;
-    private String unit;
+    private String measure;
 
     @Override
     public boolean equals(Object o) {
@@ -21,12 +20,11 @@ public class Ingredient {
         Ingredient that = (Ingredient) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(name, that.name) &&
-                Double.compare(quantity, that.quantity) == 0 &&
-                Objects.equals(unit, that.unit);
+                Objects.equals(measure, that.measure);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, quantity, unit);
+        return Objects.hash(id, name, measure);
     }
 }
