@@ -37,7 +37,7 @@ public class RecipeService {
     public void deleteRecipe(long id) { recipeRepository.deleteRecipeById(id); }
 
     public void setFavoriteRecipe(Long id) {
-        Recipe recipe = recipeRepository.getRecipesById(id);
+        Recipe recipe = getRecipesById(id);
         recipe.setFavorite(true);
         recipeRepository.save(recipe);
     }

@@ -1,9 +1,11 @@
 package com.dlmk.cheflist_backend.controller;
 
 import com.dlmk.cheflist_backend.model.Recipe;
+import com.dlmk.cheflist_backend.repository.AppUserRepository;
 import com.dlmk.cheflist_backend.service.RecipeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/recipe")
 public class RecipeController {
+
     private final RecipeService recipeService;
 
     public RecipeController(RecipeService recipeService) {

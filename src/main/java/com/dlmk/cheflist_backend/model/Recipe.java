@@ -1,5 +1,7 @@
 package com.dlmk.cheflist_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,15 +30,18 @@ public class Recipe {
     @Column(nullable = false)
     private Date updatedAt;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id", nullable = false),
-        inverseJoinColumns = @JoinColumn(name = "ingredient_id", referencedColumnName = "id"))
+    @OneToMany(mappedBy = "recipe",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     private List<Ingredient> ingredients;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "recipe_steps", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id",  nullable = false),
-        inverseJoinColumns = @JoinColumn(name = "step_id", referencedColumnName = "id"))
+    @OneToMany(mappedBy = "recipe",   cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("stepNumber ASC")
     private List<Step> steps;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name="owner_id", nullable=false)
+    @JsonIgnore
+    private AppUser owner;
 
     public void validate() throws IllegalStateException {
         if (ingredients.isEmpty()) {
@@ -48,22 +53,31 @@ public class Recipe {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Recipe recipe = (Recipe) o;
-        return favorite == recipe.favorite &&
-                Objects.equals(id, recipe.id) &&
-                Objects.equals(name, recipe.name) &&
-                Objects.equals(imageUrl, recipe.imageUrl) &&
-                Objects.equals(category, recipe.category) &&
-                Objects.equals(ingredients, recipe.ingredients) &&
-                Objects.equals(steps, recipe.steps) &&
-                Objects.equals(area, recipe.area);
+    public void addIngredient(Ingredient ingredient) {
+        ingredient.setRecipe(this);
+        ingredients.add(ingredient);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, imageUrl, category, area, favorite, ingredients, steps);
+    public void removeIngredient(Ingredient ingredient) {
+        ingredient.setRecipe(null);
+        ingredients.remove(ingredient);
     }
+
+    public void addStep(Step step) {
+        step.setRecipe(this);
+        steps.add(step);
+    }
+
+    public void removeStep(Step step) {
+        step.setRecipe(null);
+        steps.remove(step);
+    }
+
+    // readOnly for API-Answer
+    @Transient
+    @JsonProperty
+    public String getOwnerUsername() {
+        return owner != null ? owner.getUsername() : "";
+    }
+
 }
